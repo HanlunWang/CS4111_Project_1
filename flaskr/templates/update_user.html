@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1><center>{% block title %}User Information{% endblock %}</center></h1>
+{% endblock %}
+
+{% block content %}
+<section class="content">
+  <form method="post">
+    <label for="name">name</label>
+    <input name="name" id="name">
+    <label for="telephone">telephone</label>
+    <input type="telephone" name="telephone" id="telephone">
+    <label for="memberStatus">member status</label>
+    <input type="member status" name="member status" id="member status" required>
+    <label for="accountBalance">account balance</label>
+    <input type="account balance" name="account balance" id="account balance" required>
+
+    <input type="submit" value="Log In">
+  </form>
+</section>
+{% endblock %}

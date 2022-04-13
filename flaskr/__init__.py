@@ -15,12 +15,11 @@ engine = create_engine(DATABASEURI)
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 
-def get_db():
-    return g.db
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True,template_folder=tmpl_dir)
+    Uemail = ""
 
     # ensure the instance folder exists
     try:
@@ -65,33 +64,54 @@ def create_app(test_config=None):
     def navigation():
         return render_template("navigation.html")
 
+    @app.route('/navigation/user_info')
+    def user_info():
+        # username = request.form['name']
+        # telephone = request.form['telephone']
+        # memberStatus = request.form['memberStatus']
+        # accountBalance = request.form['accountBalance']
+
+        # engine.execute("INSERT INTO Users (name, telephone, memberStatusm accountBalance) VALUES (%s, %s, %b, %.2f) WHERE email = %s",
+        #             (username, telephone, memberStatus, accountBalance, Uemail),)
+
+        content = []
+        cursor = g.conn.execute("SELECT name, telephone, memberStatus, accountBalance FROM Users WHERE email = %s", (Uemail),)
+        for result in cursor:
+            content.extend([result[0], result[1], result[2], result[3]])
+        cursor.close()
+        context = dict(data = content)
+
+        return render_template("user_info.html", **context)
+
 
     bp = Blueprint('auth', __name__)
     @app.route('/register', methods=['GET','POST'])
     def register():
         if request.method == 'POST':
-            username = request.form['username']
+            useremail = request.form['useremail']
             password = request.form['password']
             error = None
 
             if not username:
-                error = 'Username is required.'
+                error = 'Email is required.'
             elif not password:
                 error = 'Password is required.'
 
             if error is None:
-                uname = engine.execute(
-                    'SELECT * FROM Users WHERE name = %s', username
+                user = engine.execute(
+                    'SELECT * FROM Users WHERE email = %s', useremail
                 ).fetchone()
 
-                if uname is None:
+                if user is None:
                     engine.execute(
-                        "INSERT INTO Users (name, password) VALUES (%s, %s)",
-                        (username, password),
+                        "INSERT INTO Users (email, password) VALUES (%s, %s)",
+                        (useremail, password),
                     )
                 else:
-                    raise ValueError(f"User {username} is already registered.")
+                    raise ValueError(f"User {useremail} is already registered.")
 
+                nonlocal Uemail
+                Uemail = useremail
                 return redirect(url_for("navigation"))
 
         return render_template("register.html")
@@ -100,20 +120,22 @@ def create_app(test_config=None):
     @app.route('/login', methods=['GET','POST'])
     def login():
         if request.method == 'POST':
-            username = request.form['username']
+            useremail = request.form['useremail']
             password = request.form['password']
 
             error = None
             user = g.conn.execute(
-                'SELECT * FROM Users WHERE name = %s', username
+                'SELECT * FROM Users WHERE email = %s', useremail
             ).fetchone()
 
             if user is None:
-                error = 'Incorrect username.'
+                error = 'Incorrect email.'
             elif not user['password'] == password:
                 error = 'Incorrect password.'
 
             if error is None:
+                nonlocal  Uemail
+                Uemail = useremail
                 return redirect(url_for('navigation'))
 
         return render_template("login.html")
@@ -123,18 +145,10 @@ def create_app(test_config=None):
         session.clear()
         return redirect(url_for('index'))
 
-    def login_required(view):
-        @functools.wraps(view)
-        def wrapped_view(**kwargs):
-            if g.user is None:
-                return redirect(url_for('auth.login'))
-
-            return view(**kwargs)
-
-        return wrapped_view
-
-
 
     return app
 
 
+# if __name__ == "__main__":
+#     app = create_app()
+#     app.run()
