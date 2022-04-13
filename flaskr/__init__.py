@@ -61,15 +61,12 @@ def create_app(test_config=None):
     def appointment():
         return render_template("appointment.html")
 
-    @app.route('/information')
-    def information():
-        return render_template("information.html")
+    @app.route('/navigation')
+    def navigation():
+        return render_template("navigation.html")
 
 
     bp = Blueprint('auth', __name__)
-
-
-
     @app.route('/register', methods=['GET','POST'])
     def register():
         if request.method == 'POST':
@@ -95,7 +92,7 @@ def create_app(test_config=None):
                 else:
                     raise ValueError(f"User {username} is already registered.")
 
-                return redirect(url_for("information"))
+                return redirect(url_for("navigation"))
 
         return render_template("register.html")
 
@@ -117,7 +114,7 @@ def create_app(test_config=None):
                 error = 'Incorrect password.'
 
             if error is None:
-                return redirect(url_for('information'))
+                return redirect(url_for('navigation'))
 
         return render_template("login.html")
 

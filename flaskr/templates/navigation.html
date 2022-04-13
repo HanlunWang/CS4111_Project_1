@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1><center>{% block title %}Navigator{% endblock %}</center></h1>
+{% endblock %}
+
+{% block content %}
+  <p><center><a href="/user_info">personal information</a></center></p>
+  <p><center><a href="/pet_info">pet information</a></center></p>
+  <p><center><a href="/products">view products</a></center></p>
+  <p><center><a href="/appointment">pet service</a></center></p>
+{% endblock %}
