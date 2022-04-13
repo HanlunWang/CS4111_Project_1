@@ -121,8 +121,8 @@ def create_app(test_config=None):
                 # session['user_name'] = user['name']
                 print(url_for('information'))
                 return redirect(url_for('information'))
-
-        return render_template("login.html")
+            else:
+                return render_template("login.html")
 
     @bp.route('/logout')
     def logout():
