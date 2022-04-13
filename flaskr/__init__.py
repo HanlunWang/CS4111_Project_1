@@ -64,6 +64,28 @@ def create_app(test_config=None):
     def navigation():
         return render_template("navigation.html")
 
+
+    @app.route('/navigation/user_info/update_user', methods=['GET','POST'])
+    def update_user():
+        if request.method == 'POST':
+            username = request.form['name']
+            telephone = request.form['telephone']
+            memberStatus = request.form['memberStatus']
+            accountBalance = request.form['accountBalance']
+
+            if username:
+                engine.execute("UPDATE Users SET name = %s WHERE email = %s", (username, Uemail),)
+            if telephone:
+                engine.execute("UPDATE Users SET telephone = %s WHERE email = %s", (telephone, Uemail),)
+            if memberStatus:
+                engine.execute("UPDATE Users SET memberStatus = %s WHERE email = %s", (memberStatus, Uemail),)
+            if accountBalance:
+                engine.execute("UPDATE Users SET accountBalance = %s WHERE email = %s", (accountBalance, Uemail),)
+
+            #return redirect(url_for('user_info'))
+        return render_template('update_user.html')
+
+
     @app.route('/navigation/user_info')
     def user_info():
         # username = request.form['name']
@@ -92,7 +114,7 @@ def create_app(test_config=None):
             password = request.form['password']
             error = None
 
-            if not username:
+            if not useremail:
                 error = 'Email is required.'
             elif not password:
                 error = 'Password is required.'
