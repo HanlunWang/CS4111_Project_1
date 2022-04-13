@@ -117,12 +117,9 @@ def create_app(test_config=None):
                 error = 'Incorrect password.'
 
             if error is None:
-                # session.clear()
-                # session['user_name'] = user['name']
-                print(url_for('information'))
                 return redirect(url_for('information'))
-            else:
-                return render_template("login.html")
+
+        return render_template("login.html")
 
     @bp.route('/logout')
     def logout():
