@@ -1,0 +1,23 @@
+<!doctype html>
+<title>{% block title %}{% endblock %} - Pet Pet</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<nav>
+  <h1><center>Pet Pet</center></h1>
+</nav>
+<section class="content">
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  <form method="post">
+    <label for="username">Username</label>
+    <input name="username" id="username" required>
+    <label for="password">Password</label>
+    <input type="password" name="password" id="password" required>
+    <input type="submit" value="Log In">
+  </form>
+  <p><a href="/register">register</a></p>
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
