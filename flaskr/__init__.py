@@ -47,7 +47,7 @@ def create_app(test_config=None):
 
     @app.route('/')
     def index():
-        return render_template("index.html")
+        return redirect(url_for('login'))
 
     @app.route('/products')
     def products():
@@ -60,18 +60,17 @@ def create_app(test_config=None):
     @app.route('/appointment')
     def appointment():
         return render_template("appointment.html")
-    #
-    # @app.route('/register')
-    #     cursor = g.conn.execute("SELECT name FROM Users")
-    #     names = []
-    #     for result in cursor:
-    #         names.append(result['name'])  # can also be accessed using result[0]
-    #     cursor.close()
+
+    @app.route('/information')
+    def information():
+        return render_template("information.html")
+
 
     bp = Blueprint('auth', __name__)
 
-    @app.route('/register')
-    @bp.route('/register', methods=('GET', 'POST'))
+
+
+    @app.route('/register', methods=['GET','POST'])
     def register():
         if request.method == 'POST':
             username = request.form['username']
@@ -85,47 +84,44 @@ def create_app(test_config=None):
 
             if error is None:
                 uname = engine.execute(
-                    'SELECT * FROM Users WHERE name = ?', (username,)
+                    'SELECT * FROM Users WHERE name = %s', username
                 ).fetchone()
 
-                if uname is not None:
+                if uname is None:
                     engine.execute(
-                        "INSERT INTO Users (name, password) VALUES (?, ?)",
-                        (username, generate_password_hash(password)),
+                        "INSERT INTO Users (name, password) VALUES (%s, %s)",
+                        (username, password),
                     )
-                    engine.commit()
                 else:
                     raise ValueError(f"User {username} is already registered.")
 
-                return redirect(url_for("login"))
+                return redirect(url_for("information"))
 
-            flash(error)
         return render_template("register.html")
 
 
-    @app.route('/login')
-    @bp.route('/login', methods=('GET', 'POST'))
+    @app.route('/login', methods=['GET','POST'])
     def login():
         if request.method == 'POST':
-            username = request.form['name']
+            username = request.form['username']
             password = request.form['password']
 
             error = None
-            user = get_db().execute(
-                'SELECT * FROM Users WHERE name = ?', (username,)
+            user = g.conn.execute(
+                'SELECT * FROM Users WHERE name = %s', username
             ).fetchone()
 
             if user is None:
                 error = 'Incorrect username.'
-            elif not check_password_hash(user['password'], password):
+            elif not user['password'] == password:
                 error = 'Incorrect password.'
 
             if error is None:
-                session.clear()
-                session['user_name'] = user['name']
-                return redirect(url_for('index'))
+                # session.clear()
+                # session['user_name'] = user['name']
+                print(url_for('information'))
+                return redirect(url_for('information'))
 
-            flash(error)
         return render_template("login.html")
 
     @bp.route('/logout')
