@@ -213,20 +213,21 @@ def create_app(test_config=None):
 
         return render_template("cart.html", **context)
 
-    # @app.route('/navigation/pet_service', methods=['GET','POST'])
-    # def pet_service():
-    #     content = []
-    #     cursor = g.conn.execute("SELECT Clerks.clerkID, Clerks.name, Clerks.title, Services_Provide.category, \
-    #                                     Services_Provide.price, Services_Provide.salesVolume, Clerks.availableTimeslot \
-    #                              FROM Services_Provide, Clerks \
-    #                              WHERE Services_Provide.clerkID = Clerks.clerkID \
-    #                              ORDER BY Clerks.clerkID")
-    #     for result in cursor:
-    #         content.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6]])
-    #     cursor.close()
-    #     context = dict(data = content)
-    #
-    #     return render_template("pet_service.html", **context)
+    @app.route('/navigation/pet_service', methods=['GET','POST'])
+    def pet_service():
+        content = []
+        cursor = g.conn.execute("SELECT Clerks.clerkID, Clerks.name, Clerks.title, Services_Provide.category, \
+                                        Services_Provide.price, Services_Provide.salesVolume, Clerks.availableTimeslot \
+                                 FROM Services_Provide, Clerks \
+                                 WHERE Services_Provide.clerkID = Clerks.clerkID \
+                                 ORDER BY Clerks.clerkID")
+        for result in cursor:
+            timeslot = list(result[6].split(','))
+            content.append([result[0], result[1], result[2], result[3], result[4], result[5], timeslot])
+        cursor.close()
+        context = dict(data = content)
+
+        return render_template("pet_service.html", **context)
 
     bp = Blueprint('auth', __name__)
     @app.route('/register', methods=['GET','POST'])

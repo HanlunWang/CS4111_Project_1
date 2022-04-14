@@ -25,10 +25,12 @@
         <td>{{n[3]}}</td>
         <td>{{n[4]}}</td>
         <td>{{n[5]}}</td>
-        <td>{{n[6]}}</td>
-<!--        <td><input type="number" name={{n[0]}} form="add_to_cart"/></td>-->
-<!--        <td><button type="submit" name="product_id" form="add_to_cart" value={{n[0]}}>add to cart</button></td>-->
-
+        <td>
+        {% for t in n[6] %}
+<!--            <td><input type="number" name={{n[0]}} form="add_to_cart"/></td>-->
+            <button type="submit" name="timeslot" form="make_appointment" value={{n[0]}}>{{t}}</button>
+        {% endfor %}
+        </td>
     </tr>
     {% endfor %}
     </tbody>
