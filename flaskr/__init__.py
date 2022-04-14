@@ -141,6 +141,39 @@ def create_app(test_config=None):
 
         return render_template("pet_info.html", **context)
 
+    @app.route('/navigation/shop', methods=['GET','POST'])
+    def shop():
+        content = []
+        cursor = g.conn.execute("SELECT * FROM Products")
+        for result in cursor:
+            content.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6]])
+        cursor.close()
+        context = dict(data = content)
+        if request.method == 'POST':
+            product_id = request.form['product_id']
+            quantity = request.form[product_id]
+
+
+    @app.route('/navigation/cart', methods=['GET','POST'])
+    def cart():
+        content = []
+        cursor = g.conn.execute("SELECT * FROM Orders")
+        for result in cursor:
+            content.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6]])
+        cursor.close()
+        context = dict(data = content)
+        if request.method == 'POST':
+            product_id = request.form['product_id']
+            quantity = request.form[product_id]
+            engine.execute(
+                "UPDATE Pets SET type = %s WHERE ownerID = %s", 
+                (product_id, quantity),)
+
+
+
+        return render_template("shop.html", **context)
+    
+
 
     bp = Blueprint('auth', __name__)
     @app.route('/register', methods=['GET','POST'])

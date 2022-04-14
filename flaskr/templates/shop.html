@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1><center>{% block title %}Shop{% endblock %}</center></h1>
+{% endblock %}
+
+{% block content %}
+<form method="POST" id="add_to_cart"></form>
+<table>
+    <tbody>
+        <tr>
+            <th>productID</th>
+            <th>productName</th>
+            <th>category</th>
+            <th>price</th>
+            <th>amount</th>
+            <th>salesVolume</th>
+            <th>discount</th>
+            <th>quantity</th>
+            
+        </tr>    
+    {% for n in data %}
+    <tr>
+        <td>{{n[0]}}</td>
+        <td>{{n[1]}}</td>
+        <td>{{n[2]}}</td>
+        <td>{{n[3]}}</td>
+        <td>{{n[4]}}</td>
+        <td>{{n[5]}}</td>
+        <td>{{n[6]}}</td>
+        <td><input type="number" name={{n[0]}} form="add_to_cart" value="a"/></td>
+        <td><button type="submit" name="product_id" form="add_to_cart" value={{n[0]}}>add to cart</button></td>
+        
+    </tr>
+
+    {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}
