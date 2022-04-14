@@ -61,7 +61,6 @@ def create_app(test_config=None):
     def navigation():
         return render_template("navigation.html")
 
-
     @app.route('/navigation/user_info/update_user', methods=['GET','POST'])
     def update_user():
         if request.method == 'POST':
@@ -82,7 +81,6 @@ def create_app(test_config=None):
             return redirect(url_for("user_info"))
         return render_template("update_user.html")
 
-
     @app.route('/navigation/user_info')
     def user_info():
         # username = request.form['name']
@@ -101,7 +99,6 @@ def create_app(test_config=None):
         context = dict(data = content)
 
         return render_template("user_info.html", **context)
-
 
     @app.route('/navigation/pet_info/update_pet', methods=['GET','POST'])
     def update_pet():
@@ -165,8 +162,6 @@ def create_app(test_config=None):
                 flash(error)
             return redirect(url_for("shop"))
 
-
-            
         return render_template("shop.html", **context)
 
     def update_product(product, quantity):
@@ -179,8 +174,6 @@ def create_app(test_config=None):
                 "UPDATE Products \
                 SET salesVolume = salesVolume + {quantity}\
                 WHERE productID = {product_id}".format(product_id = product_id, quantity = quantity))
-        
-
 
     @app.route('/navigation/cart', methods=['GET','POST'])
     def cart():
@@ -190,12 +183,50 @@ def create_app(test_config=None):
             content.append([result[0], result[1], result[2]])
         cursor.close()
         context = dict(data = content)
+
         if request.method == 'POST':
             product_id = request.form['product_id']
-            quantity = request.form[product_id]
-        return render_template("cart.html", **context)
-    
+            quantity = int(request.form[product_id])
+            order = g.conn.execute(
+                "SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid=Uid,
+                                                                                 product_id=product_id)).fetchone()
+            product = g.conn.execute(
+                "SELECT * FROM Products WHERE productID = {product_id}".format(product_id=product_id)).fetchone()
+            order_num = order[2]
 
+            if quantity <= order_num:
+                if quantity == order_num:
+                    engine.execute(
+                        "DELETE FROM Orders \
+                         WHERE productID = {product_id} AND ownerID = {Uid}".format(product_id=product_id, Uid = Uid))
+                    update_product(product, -quantity)
+                else:
+                    engine.execute(
+                        "UPDATE Orders SET amount = amount - {quantity}\
+                        WHERE ownerID = {Uid} AND productID = {product_id}".format(product_id=product_id,
+                                                                                   quantity=quantity, Uid=Uid))
+                    update_product(product, -quantity)
+            else:
+                error = "Not enough products in cart"
+                flash(error)
+            return redirect(url_for("cart"))
+
+        return render_template("cart.html", **context)
+
+    # @app.route('/navigation/pet_service', methods=['GET','POST'])
+    # def pet_service():
+    #     content = []
+    #     cursor = g.conn.execute("SELECT Clerks.clerkID, Clerks.name, Clerks.title, Services_Provide.category, \
+    #                                     Services_Provide.price, Services_Provide.salesVolume, Clerks.availableTimeslot \
+    #                              FROM Services_Provide, Clerks \
+    #                              WHERE Services_Provide.clerkID = Clerks.clerkID \
+    #                              ORDER BY Clerks.clerkID")
+    #     for result in cursor:
+    #         content.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6]])
+    #     cursor.close()
+    #     context = dict(data = content)
+    #
+    #     return render_template("pet_service.html", **context)
 
     bp = Blueprint('auth', __name__)
     @app.route('/register', methods=['GET','POST'])
@@ -229,7 +260,6 @@ def create_app(test_config=None):
 
         return render_template("register.html")
 
-
     @app.route('/login', methods=['GET','POST'])
     def login():
         if request.method == 'POST':
@@ -259,7 +289,6 @@ def create_app(test_config=None):
     def logout():
         session.clear()
         return redirect(url_for("index"))
-
 
     return app
 
