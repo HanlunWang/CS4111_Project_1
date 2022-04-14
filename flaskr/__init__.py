@@ -4,6 +4,7 @@ import functools
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from werkzeug.security import check_password_hash, generate_password_hash
+import time
 
 
 DB_USER = "hw2839"
@@ -225,12 +226,14 @@ def create_app(test_config=None):
             clerk = engine.execute(
                     'SELECT * FROM Clerks WHERE clerkID = %s', clerk_id
                 ).fetchone()
+            time.sleep(0.1)
             clerk_available_time = clerk[3].split(',')
             clerk_available_time.remove(appointment_time)
             clerk_available_time = ",".join(clerk_available_time)
             engine.execute(
                         "UPDATE Clerks SET availableTimeslot = \'{clerk_available_time}\'\
                         WHERE clerkID = {clerk_id}".format(clerk_id=clerk_id, clerk_available_time=clerk_available_time))
+            time.sleep(0.1)
             engine.execute(
                         "INSERT INTO Appoint (ownerID, clerkID, times) \
                         VALUES ({Uid}, {clerk_id}, \'{appointment_time}\')".format(Uid = Uid, clerk_id=clerk_id, appointment_time=appointment_time))
@@ -258,13 +261,22 @@ def create_app(test_config=None):
 
         # cancel appointment
         if request.method == 'POST':
-            [clerkID, service_time] = request.form['cancel']
+            [clerkID, service_time] = request.form['cancel'].split(",")
+
+            clerk = engine.execute(
+                    'SELECT * FROM Clerks WHERE clerkID = %s', clerkID
+                ).fetchone()
+
+            clerk_availableTimeslot = clerk[3] + "," + service_time
+            time.sleep(0.1)
+            engine.execute(
+                "UPDATE Clerks SET availableTimeslot = \'{clerk_availableTimeslot}\'\
+                WHERE clerkID = {clerkID}".format(clerkID=clerkID, clerk_availableTimeslot=clerk_availableTimeslot))
+            time.sleep(0.1)
             engine.execute(
                 "DELETE FROM Appoint \
                  WHERE clerkID = {clerkID} AND ownerID = {Uid}".format(clerkID=clerkID, Uid = Uid))
-            engine.execute(
-                "UPDATE Clerks SET availableTimeslot = availableTimeslot + "," + {service_time}\
-                WHERE clerkID = {clerkID}".format(clerkID=clerkID, service_time=service_time))
+            
             return redirect(url_for("appointment"))
 
         return render_template("appointment.html", **context)
