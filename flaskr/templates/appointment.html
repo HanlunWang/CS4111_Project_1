@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="POST" id="remove_from_cart"></form>
+<form method="POST" id="cancel_appointment"></form>
 <table>
     <tbody>
         <tr>
@@ -25,8 +25,7 @@
         <td>{{n[3]}}</td>
         <td>{{n[4]}}</td>
         <td>{{n[5]}}</td>
-        <!-- <td><input type="number" name={{n[1]}} form="remove_from_cart"/></td>
-        <td><button type="submit" name="product_id" form="remove_from_cart" value={{n[1]}}>remove from cart</button></td> -->
+        <td><button type="submit" name="cancel" form="cancel_appointment" value="{{n[0]}},{{n[5]}}">cancel</button></td>
     </tr>
 
     {% endfor %}

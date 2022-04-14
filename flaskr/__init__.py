@@ -256,6 +256,17 @@ def create_app(test_config=None):
         cursor.close()
         context = dict(data = content)
 
+        # cancel appointment
+        if request.method == 'POST':
+            [clerkID, service_time] = request.form['cancel']
+            engine.execute(
+                "DELETE FROM Appoint \
+                 WHERE clerkID = {clerkID} AND ownerID = {Uid}".format(clerkID=clerkID, Uid = Uid))
+            engine.execute(
+                "UPDATE Clerks SET availableTimeslot = availableTimeslot + "," + {service_time}\
+                WHERE clerkID = {clerkID}".format(clerkID=clerkID, service_time=service_time))
+            return redirect(url_for("appointment"))
+
         return render_template("appointment.html", **context)
 
     bp = Blueprint('auth', __name__)
@@ -282,11 +293,14 @@ def create_app(test_config=None):
                         (useremail, password),
                     )
                 else:
-                    raise ValueError(f"User {useremail} is already registered.")
+                    error = 'User {useremail} is already registered.'.format(useremail=useremail)
+                    flash(error)
 
                 nonlocal Uemail
                 Uemail = useremail
                 return redirect(url_for("navigation"))
+            else:
+                flash(error)
 
         return render_template("register.html")
 
@@ -312,6 +326,8 @@ def create_app(test_config=None):
                 nonlocal Uid
                 Uid = user[0]
                 return redirect(url_for("navigation"))
+            else:
+                flash(error)
 
         return render_template("login.html")
 
