@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1><center>{% block title %}Pet Information{% endblock %}</center></h1>
+{% endblock %}
+
+{% block content %}
+<table>
+    <tbody>
+    <tr>
+      <td><b>Name</b></td>
+      <td>{{data[0]}}</td>
+    </tr>
+
+    <tr>
+      <td><b>OwnerID</b></td>
+      <td>{{data[1]}}</td>
+    </tr>
+    <tr>
+      <td><b>Type</b></td>
+      <td>{{data[2]}}</td>
+    </tr>
+    <tr>
+      <td><b>Gender</b></td>
+      <td>{{data[3]}}</td>
+    </tr>
+    <tr>
+        <td><b>Age</b></td>
+        <td>{{data[4]}}</td>
+      </tr>
+      <tr>
+        <td><b>Date Of Birth</b></td>
+        <td>{{data[5]}}</td>
+      </tr>
+      <tr>
+        <td><b>Weight</b></td>
+        <td>{{data[6]}}</td>
+      </tr>
+      <tr>
+        <td><b>Health Record</b></td>
+        <td>{{data[7]}}</td>
+      </tr>
+      <tr>
+        <td><b>Character</b></td>
+        <td>{{data[8]}}</td>
+      </tr>
+      <tr>
+        <td><b>Preference</b></td>
+        <td>{{data[9]}}</td>
+      </tr>
+      <tr>
+        <td><b>Price</b></td>
+        <td>{{data[10]}}</td>
+      </tr>
+
+    </tbody>
+</table>
+<p><a href="/navigator/pet_info/update_info">update information</a></p>
+{% endblock %}
+

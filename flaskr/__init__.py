@@ -82,6 +82,17 @@ def create_app(test_config=None):
         context = dict(data = content)
 
         return render_template("user_info.html", **context)
+    
+    @app.route('/navigation/pet_info')
+    def pet_info():
+        content = []
+        cursor = g.conn.execute("SELECT Pets.name, Pets.ownerID, type, gender, age, dateOfBirth, weight, healthRecord, character, preference, price FROM Pets, Users WHERE email = %s", (Uemail),)
+        for result in cursor:
+            content.extend([result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], result[8], result[9], result[10]])
+        cursor.close()
+        context = dict(data = content)
+
+        return render_template("pet_info.html", **context)
 
 
     bp = Blueprint('auth', __name__)
@@ -92,7 +103,7 @@ def create_app(test_config=None):
             password = request.form['password']
             error = None
 
-            if not username:
+            if not useremail:
                 error = 'Email is required.'
             elif not password:
                 error = 'Password is required.'
@@ -149,6 +160,6 @@ def create_app(test_config=None):
     return app
 
 
-# if __name__ == "__main__":
-#     app = create_app()
-#     app.run()
+if __name__ == "__main__":
+    app = create_app()
+    app.run()
