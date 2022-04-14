@@ -28,7 +28,7 @@
         <td>{{n[4]}}</td>
         <td>{{n[5]}}</td>
         <td>{{n[6]}}</td>
-        <td><input type="number" name={{n[0]}} form="add_to_cart" value="a"/></td>
+        <td><input type="number" name={{n[0]}} form="add_to_cart"/></td>
         <td><button type="submit" name="product_id" form="add_to_cart" value={{n[0]}}>add to cart</button></td>
         
     </tr>
@@ -36,6 +36,7 @@
     {% endfor %}
     </tbody>
 </table>
+<p><center><a href="/navigation/cart">my cart</a></center></p>
 
 
 {% endblock %}

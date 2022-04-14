@@ -20,6 +20,7 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True,template_folder=tmpl_dir)
     Uemail = ""
+    Uid = -1
 
     # ensure the instance folder exists
     try:
@@ -51,10 +52,6 @@ def create_app(test_config=None):
     @app.route('/products')
     def products():
         return render_template("products.html")
-
-    @app.route('/cart')
-    def cart():
-        return render_template("cart.html")
 
     @app.route('/appointment')
     def appointment():
@@ -114,18 +111,14 @@ def create_app(test_config=None):
             petGender = request.form['gender']
             petAge = request.form['age']
 
-            user = g.conn.execute(
-                'SELECT * FROM Users WHERE email = %s', Uemail
-            ).fetchone()
-
             if petName:
-                engine.execute("UPDATE Pets SET name = %s WHERE ownerID = %s", (petName, user[0]),)
+                engine.execute("UPDATE Pets SET name = %s WHERE ownerID = %s", (petName, Uid),)
             if petType:
-                engine.execute("UPDATE Pets SET type = %s WHERE ownerID = %s", (petType, user[0]),)
+                engine.execute("UPDATE Pets SET type = %s WHERE ownerID = %s", (petType, Uid),)
             if petGender:
-                engine.execute("UPDATE Pets SET gender = %s WHERE ownerID = %s", (petGender, user[0]),)
+                engine.execute("UPDATE Pets SET gender = %s WHERE ownerID = %s", (petGender, Uid),)
             if petAge:
-                engine.execute("UPDATE Pets SET age = %s WHERE ownerID = %s", (petAge, user[0]),)
+                engine.execute("UPDATE Pets SET age = %s WHERE ownerID = %s", (petAge, Uid),)
 
             return redirect(url_for("pet_info"))
         return render_template("update_pet.html")
@@ -152,26 +145,21 @@ def create_app(test_config=None):
         if request.method == 'POST':
             product_id = request.form['product_id']
             quantity = request.form[product_id]
+        return render_template("shop.html", **context)
 
 
     @app.route('/navigation/cart', methods=['GET','POST'])
     def cart():
         content = []
-        cursor = g.conn.execute("SELECT * FROM Orders")
+        cursor = g.conn.execute("SELECT * FROM Orders WHERE ownerID = %s", Uid,)
         for result in cursor:
-            content.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6]])
+            content.append([result[0], result[1], result[2]])
         cursor.close()
         context = dict(data = content)
         if request.method == 'POST':
             product_id = request.form['product_id']
             quantity = request.form[product_id]
-            engine.execute(
-                "UPDATE Pets SET type = %s WHERE ownerID = %s", 
-                (product_id, quantity),)
-
-
-
-        return render_template("shop.html", **context)
+        return render_template("cart.html", **context)
     
 
 
@@ -227,6 +215,8 @@ def create_app(test_config=None):
             if error is None:
                 nonlocal  Uemail
                 Uemail = useremail
+                nonlocal Uid
+                Uid = user[0]
                 return redirect(url_for("navigation"))
 
         return render_template("login.html")

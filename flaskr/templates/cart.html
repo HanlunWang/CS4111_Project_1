@@ -1,1 +1,31 @@
-my shopping cart
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1><center>{% block title %}My Cart{% endblock %}</center></h1>
+{% endblock %}
+
+{% block content %}
+<form method="POST" id="remove_from_cart"></form>
+<table>
+    <tbody>
+        <tr>
+            <th>productID</th>
+            <th>amount</th>
+            
+        </tr>    
+    {% for n in data %}
+    <tr>
+        <td>{{n[1]}}</td>
+        <td>{{n[2]}}</td>
+        <td><input type="number" name={{n[1]}} form="remove_from_cart"/></td>
+        <td><button type="submit" name="product_id" form="remove_from_cart" value={{n[1]}}>remove from cart</button></td>
+        
+    </tr>
+
+    {% endfor %}
+    </tbody>
+</table>
+<p><center><a href="/navigation/shop">return to shop</a></center></p>
+
+
+{% endblock %}
