@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1><center>{% block title %}My Appointments{% endblock %}</center></h1>
+{% endblock %}
+
+{% block content %}
+<form method="POST" id="remove_from_cart"></form>
+<table>
+    <tbody>
+        <tr>
+            <th>clerk ID</th>
+            <th>clerk name</th>
+            <th>clerk title</th>
+            <th>category</th>
+            <th>price</th>
+            <th>time</th>
+            
+        </tr>    
+    {% for n in data %}
+    <tr>
+        <td>{{n[0]}}</td>
+        <td>{{n[1]}}</td>
+        <td>{{n[2]}}</td>
+        <td>{{n[3]}}</td>
+        <td>{{n[4]}}</td>
+        <td>{{n[5]}}</td>
+        <!-- <td><input type="number" name={{n[1]}} form="remove_from_cart"/></td>
+        <td><button type="submit" name="product_id" form="remove_from_cart" value={{n[1]}}>remove from cart</button></td> -->
+    </tr>
+
+    {% endfor %}
+    </tbody>
+</table>
+<p><center><a href="/navigation/pet_service">return to service</a></center></p>
+<p><center><a href="/navigation">return to navigation page</a></center></p>
+
+{% endblock %}

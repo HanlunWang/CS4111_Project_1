@@ -53,10 +53,6 @@ def create_app(test_config=None):
     def products():
         return render_template("products.html")
 
-    @app.route('/appointment')
-    def appointment():
-        return render_template("appointment.html")
-
     @app.route('/navigation')
     def navigation():
         return render_template("navigation.html")
@@ -188,8 +184,7 @@ def create_app(test_config=None):
             product_id = request.form['product_id']
             quantity = int(request.form[product_id])
             order = g.conn.execute(
-                "SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid=Uid,
-                                                                                 product_id=product_id)).fetchone()
+                "SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid=Uid, product_id=product_id)).fetchone()
             product = g.conn.execute(
                 "SELECT * FROM Products WHERE productID = {product_id}".format(product_id=product_id)).fetchone()
             order_num = order[2]
@@ -203,8 +198,7 @@ def create_app(test_config=None):
                 else:
                     engine.execute(
                         "UPDATE Orders SET amount = amount - {quantity}\
-                        WHERE ownerID = {Uid} AND productID = {product_id}".format(product_id=product_id,
-                                                                                   quantity=quantity, Uid=Uid))
+                        WHERE ownerID = {Uid} AND productID = {product_id}".format(product_id=product_id, quantity=quantity, Uid=Uid))
                     update_product(product, -quantity)
             else:
                 error = "Not enough products in cart"
@@ -226,8 +220,43 @@ def create_app(test_config=None):
             content.append([result[0], result[1], result[2], result[3], result[4], result[5], timeslot])
         cursor.close()
         context = dict(data = content)
-
+        if request.method == 'POST':
+            [clerk_id, appointment_time] = request.form['timeslot'].split(",")
+            clerk = engine.execute(
+                    'SELECT * FROM Clerks WHERE clerkID = %s', clerk_id
+                ).fetchone()
+            clerk_available_time = clerk[3].split(',')
+            clerk_available_time.remove(appointment_time)
+            clerk_available_time = ",".join(clerk_available_time)
+            engine.execute(
+                        "UPDATE Clerks SET availableTimeslot = {clerk_available_time}\
+                        WHERE clerkID = {clerk_id}".format(clerk_id=clerk_id, clerk_available_time=clerk_available_time))
+            engine.execute(
+                        "INSERT INTO Appoint (ownerID, clerkID, times) \
+                        VALUES ({Uid}, {clerk_id}, {appointment_time})".format(Uid = Uid, clerk_id=clerk_id, appointment_time=appointment_time))
+            return redirect(url_for("pet_service"))
         return render_template("pet_service.html", **context)
+
+    @app.route('/navigation/appointment', methods=['GET','POST'])
+    def appointment():
+        content = []
+        my_appoints = engine.execute(
+                    'SELECT * FROM Appoint WHERE ownerID = %s', Uid
+                ).fetchall()
+        my_appoints_clerkids = []
+        for appoint in my_appoints:
+            my_appoints_clerkids.append(appoint[1])
+        cursor = g.conn.execute(("SELECT Clerks.clerkID, Clerks.name, Clerks.title, Services_Provide.category, \
+                                        Services_Provide.price, Appoint.times\
+                                 FROM Services_Provide, Clerks, Appoint \
+                                 WHERE Services_Provide.clerkID = Clerks.clerkID AND Appoint.clerkID = Clerks.clerkID AND Appoint.ownerID = {Uid}\
+                                 ORDER BY Clerks.clerkID").format(Uid = Uid))
+        for result in cursor:
+            content.append([result[0], result[1], result[2], result[3], result[4], result[5]])
+        cursor.close()
+        context = dict(data = content)
+
+        return render_template("appointment.html", **context)
 
     bp = Blueprint('auth', __name__)
     @app.route('/register', methods=['GET','POST'])

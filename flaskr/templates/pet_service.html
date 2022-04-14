@@ -28,14 +28,14 @@
         <td>
         {% for t in n[6] %}
 <!--            <td><input type="number" name={{n[0]}} form="add_to_cart"/></td>-->
-            <button type="submit" name="timeslot" form="make_appointment" value={{n[0]}}>{{t}}</button>
+            <button type="submit" name="timeslot" form="make_appointment" value="{{n[0]}},{{t}}">{{t}}</button>
         {% endfor %}
         </td>
     </tr>
     {% endfor %}
     </tbody>
 </table>
-<p><center><a href="/navigation/cart">my cart</a></center></p>
+<p><center><a href="/navigation/appointment">my appointments</a></center></p>
 <p><center><a href="/navigation">return to navigation page</a></center></p>
 
 {% endblock %}
