@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1><center>{% block title %}User Information{% endblock %}</center></h1>
+  <h1><center>{% block title %}Update Information{% endblock %}</center></h1>
 {% endblock %}
 
 {% block content %}
@@ -12,11 +12,10 @@
     <label for="telephone">telephone</label>
     <input type="telephone" name="telephone" id="telephone">
     <label for="memberStatus">member status</label>
-    <input type="member status" name="member status" id="member status" required>
+    <input type="boolean" name="memberStatus" id="memberStatus">
     <label for="accountBalance">account balance</label>
-    <input type="account balance" name="account balance" id="account balance" required>
-
-    <input type="submit" value="Log In">
+    <input type="float" name="accountBalance" id="accountBalance">
+    <input type="submit" value="Update">
   </form>
 </section>
 {% endblock %}
