@@ -229,11 +229,11 @@ def create_app(test_config=None):
             clerk_available_time.remove(appointment_time)
             clerk_available_time = ",".join(clerk_available_time)
             engine.execute(
-                        "UPDATE Clerks SET availableTimeslot = {clerk_available_time}\
+                        "UPDATE Clerks SET availableTimeslot = \'{clerk_available_time}\'\
                         WHERE clerkID = {clerk_id}".format(clerk_id=clerk_id, clerk_available_time=clerk_available_time))
             engine.execute(
                         "INSERT INTO Appoint (ownerID, clerkID, times) \
-                        VALUES ({Uid}, {clerk_id}, {appointment_time})".format(Uid = Uid, clerk_id=clerk_id, appointment_time=appointment_time))
+                        VALUES ({Uid}, {clerk_id}, \'{appointment_time}\')".format(Uid = Uid, clerk_id=clerk_id, appointment_time=appointment_time))
             return redirect(url_for("pet_service"))
         return render_template("pet_service.html", **context)
 
