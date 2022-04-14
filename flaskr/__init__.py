@@ -46,7 +46,7 @@ def create_app(test_config=None):
 
     @app.route('/')
     def index():
-        return redirect(url_for('login'))
+        return redirect(url_for("login"))
 
     @app.route('/products')
     def products():
@@ -82,8 +82,8 @@ def create_app(test_config=None):
             if accountBalance:
                 engine.execute("UPDATE Users SET accountBalance = %s WHERE email = %s", (accountBalance, Uemail),)
 
-            #return redirect(url_for('user_info'))
-        return render_template('update_user.html')
+            return redirect(url_for("user_info"))
+        return render_template("update_user.html")
 
 
     @app.route('/navigation/user_info')
@@ -104,11 +104,36 @@ def create_app(test_config=None):
         context = dict(data = content)
 
         return render_template("user_info.html", **context)
+
+
+    @app.route('/navigation/pet_info/update_pet', methods=['GET','POST'])
+    def update_pet():
+        if request.method == 'POST':
+            petName = request.form['name']
+            petType = request.form['type']
+            petGender = request.form['gender']
+            petAge = request.form['age']
+
+            user = g.conn.execute(
+                'SELECT * FROM Users WHERE email = %s', Uemail
+            ).fetchone()
+
+            if petName:
+                engine.execute("UPDATE Pets SET name = %s WHERE ownerID = %s", (petName, user[0]),)
+            if petType:
+                engine.execute("UPDATE Pets SET type = %s WHERE ownerID = %s", (petType, user[0]),)
+            if petGender:
+                engine.execute("UPDATE Pets SET gender = %s WHERE ownerID = %s", (petGender, user[0]),)
+            if petAge:
+                engine.execute("UPDATE Pets SET age = %s WHERE ownerID = %s", (petAge, user[0]),)
+
+            return redirect(url_for("pet_info"))
+        return render_template("update_pet.html")
     
     @app.route('/navigation/pet_info')
     def pet_info():
         content = []
-        cursor = g.conn.execute("SELECT Pets.name, Pets.ownerID, type, gender, age, dateOfBirth, weight, healthRecord, character, preference, price FROM Pets, Users WHERE email = %s", (Uemail),)
+        cursor = g.conn.execute("SELECT Pets.name, Pets.ownerID, type, gender, age, dateOfBirth, weight, healthRecord, character, preference, price FROM Pets, Users WHERE Users.email = %s AND Pets.ownerID = Users.ownerID", (Uemail),)
         for result in cursor:
             content.extend([result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7], result[8], result[9], result[10]])
         cursor.close()
@@ -169,14 +194,14 @@ def create_app(test_config=None):
             if error is None:
                 nonlocal  Uemail
                 Uemail = useremail
-                return redirect(url_for('navigation'))
+                return redirect(url_for("navigation"))
 
         return render_template("login.html")
 
     @bp.route('/logout')
     def logout():
         session.clear()
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
 
     return app
