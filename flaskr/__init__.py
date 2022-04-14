@@ -137,15 +137,49 @@ def create_app(test_config=None):
     @app.route('/navigation/shop', methods=['GET','POST'])
     def shop():
         content = []
-        cursor = g.conn.execute("SELECT * FROM Products")
+        cursor = g.conn.execute("SELECT * FROM Products ORDER BY productID")
         for result in cursor:
             content.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6]])
         cursor.close()
         context = dict(data = content)
         if request.method == 'POST':
             product_id = request.form['product_id']
-            quantity = request.form[product_id]
+            quantity = int(request.form[product_id])
+            order = g.conn.execute("SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid = Uid, product_id = product_id)).fetchone()
+            product = g.conn.execute("SELECT * FROM Products WHERE productID = {product_id}".format(product_id = product_id)).fetchone()
+            product_stock_num = product[4]
+
+            if quantity <= product_stock_num:
+                if order is None:
+                    engine.execute(
+                    "INSERT INTO Orders (ownerID, productID, amount)\
+                    VALUES ({Uid}, {product_id}, {quantity})".format(product_id = product_id, quantity = quantity, Uid = Uid))
+                    update_product(product, quantity)
+                else:
+                    engine.execute(
+                    "UPDATE Orders SET amount = amount + {quantity}\
+                    WHERE ownerID = {Uid} AND productID = {product_id}".format(product_id = product_id, quantity = quantity, Uid = Uid))
+                    update_product(product, quantity)
+            else:
+                error = "Not enough products in stock"
+                flash(error)
+            return redirect(url_for("shop"))
+
+
+            
         return render_template("shop.html", **context)
+
+    def update_product(product, quantity):
+        product_id = product[0]
+        engine.execute(
+                "UPDATE Products \
+                SET amount = amount - {quantity}\
+                WHERE productID = {product_id}".format(product_id = product_id, quantity = quantity))
+        engine.execute(
+                "UPDATE Products \
+                SET salesVolume = salesVolume + {quantity}\
+                WHERE productID = {product_id}".format(product_id = product_id, quantity = quantity))
+        
 
 
     @app.route('/navigation/cart', methods=['GET','POST'])
@@ -232,4 +266,5 @@ def create_app(test_config=None):
 
 if __name__ == "__main__":
     app = create_app()
+    app.secret_key = "super secret key"
     app.run()
