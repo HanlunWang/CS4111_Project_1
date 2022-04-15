@@ -132,33 +132,38 @@ def create_app(test_config=None):
     def shop():
         content = []
         cursor = g.conn.execute("SELECT * FROM Products ORDER BY productID")
-        time.sleep(0.1)
+
         for result in cursor:
             content.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6]])
         cursor.close()
         context = dict(data = content)
         if request.method == 'POST':
             product_id = request.form['product_id']
-            quantity = int(request.form[product_id])
-            order = g.conn.execute("SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid = Uid, product_id = product_id)).fetchone()
-            product = g.conn.execute("SELECT * FROM Products WHERE productID = {product_id}".format(product_id = product_id)).fetchone()
-            product_stock_num = product[4]
-
-            if quantity <= product_stock_num:
-                if order is None:
-                    engine.execute(
-                    "INSERT INTO Orders (ownerID, productID, amount)\
-                    VALUES ({Uid}, {product_id}, {quantity})".format(product_id = product_id, quantity = quantity, Uid = Uid))
-                    update_product(product, quantity)
-                else:
-                    engine.execute(
-                    "UPDATE Orders SET amount = amount + {quantity}\
-                    WHERE ownerID = {Uid} AND productID = {product_id}".format(product_id = product_id, quantity = quantity, Uid = Uid))
-                    update_product(product, quantity)
-            else:
-                error = "Not enough products in stock"
+            quantity_str = request.form[product_id]
+            if quantity_str == '':
+                error = "quantity is required"
                 flash(error)
-            return redirect(url_for("shop"))
+            else:
+                quantity = int(quantity_str)
+                order = g.conn.execute("SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid = Uid, product_id = product_id)).fetchone()
+                product = g.conn.execute("SELECT * FROM Products WHERE productID = {product_id}".format(product_id = product_id)).fetchone()
+                product_stock_num = product[4]
+
+                if quantity <= product_stock_num:
+                    if order is None:
+                        engine.execute(
+                        "INSERT INTO Orders (ownerID, productID, amount)\
+                        VALUES ({Uid}, {product_id}, {quantity})".format(product_id = product_id, quantity = quantity, Uid = Uid))
+                        update_product(product, quantity)
+                    else:
+                        engine.execute(
+                        "UPDATE Orders SET amount = amount + {quantity}\
+                        WHERE ownerID = {Uid} AND productID = {product_id}".format(product_id = product_id, quantity = quantity, Uid = Uid))
+                        update_product(product, quantity)
+                else:
+                    error = "Not enough products in stock"
+                    flash(error)
+                return redirect(url_for("shop"))
 
         return render_template("shop.html", **context)
 
@@ -168,7 +173,7 @@ def create_app(test_config=None):
                 "UPDATE Products \
                 SET amount = amount - {quantity}\
                 WHERE productID = {product_id}".format(product_id = product_id, quantity = quantity))
-        time.sleep(0.1)
+
         engine.execute(
                 "UPDATE Products \
                 SET salesVolume = salesVolume + {quantity}\
@@ -185,29 +190,34 @@ def create_app(test_config=None):
 
         if request.method == 'POST':
             product_id = request.form['product_id']
-            quantity = int(request.form[product_id])
-            order = g.conn.execute(
-                "SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid=Uid, product_id=product_id)).fetchone()
-            time.sleep(0.1)
-            product = g.conn.execute(
-                "SELECT * FROM Products WHERE productID = {product_id}".format(product_id=product_id)).fetchone()
-            order_num = order[2]
-
-            if quantity <= order_num:
-                if quantity == order_num:
-                    engine.execute(
-                        "DELETE FROM Orders \
-                         WHERE productID = {product_id} AND ownerID = {Uid}".format(product_id=product_id, Uid = Uid))
-                    update_product(product, -quantity)
-                else:
-                    engine.execute(
-                        "UPDATE Orders SET amount = amount - {quantity}\
-                        WHERE ownerID = {Uid} AND productID = {product_id}".format(product_id=product_id, quantity=quantity, Uid=Uid))
-                    update_product(product, -quantity)
-            else:
-                error = "Not enough products in cart"
+            quantity_str = request.form[product_id]
+            if quantity_str == '':
+                error = "quantity is required"
                 flash(error)
-            return redirect(url_for("cart"))
+            else:
+                quantity = int(quantity_str)
+                order = g.conn.execute(
+                    "SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid=Uid, product_id=product_id)).fetchone()
+
+                product = g.conn.execute(
+                    "SELECT * FROM Products WHERE productID = {product_id}".format(product_id=product_id)).fetchone()
+                order_num = order[2]
+
+                if quantity <= order_num:
+                    if quantity == order_num:
+                        engine.execute(
+                            "DELETE FROM Orders \
+                            WHERE productID = {product_id} AND ownerID = {Uid}".format(product_id=product_id, Uid = Uid))
+                        update_product(product, -quantity)
+                    else:
+                        engine.execute(
+                            "UPDATE Orders SET amount = amount - {quantity}\
+                            WHERE ownerID = {Uid} AND productID = {product_id}".format(product_id=product_id, quantity=quantity, Uid=Uid))
+                        update_product(product, -quantity)
+                else:
+                    error = "Not enough products in cart"
+                    flash(error)
+                return redirect(url_for("cart"))
 
         return render_template("cart.html", **context)
 
@@ -229,14 +239,14 @@ def create_app(test_config=None):
             clerk = engine.execute(
                     'SELECT * FROM Clerks WHERE clerkID = %s', clerk_id
                 ).fetchone()
-            time.sleep(0.1)
+
             clerk_available_time = clerk[3].split(',')
             clerk_available_time.remove(appointment_time)
             clerk_available_time = ",".join(clerk_available_time)
             engine.execute(
                         "UPDATE Clerks SET availableTimeslot = \'{clerk_available_time}\'\
                         WHERE clerkID = {clerk_id}".format(clerk_id=clerk_id, clerk_available_time=clerk_available_time))
-            time.sleep(0.1)
+
             engine.execute(
                         "INSERT INTO Appoint (ownerID, clerkID, times) \
                         VALUES ({Uid}, {clerk_id}, \'{appointment_time}\')".format(Uid = Uid, clerk_id=clerk_id, appointment_time=appointment_time))
@@ -249,7 +259,7 @@ def create_app(test_config=None):
         my_appoints = engine.execute(
                     'SELECT * FROM Appoint WHERE ownerID = %s', Uid
                 ).fetchall()
-        time.sleep(0.1)
+
         my_appoints_clerkids = []
         for appoint in my_appoints:
             my_appoints_clerkids.append(appoint[1])
@@ -272,11 +282,11 @@ def create_app(test_config=None):
                 ).fetchone()
 
             clerk_availableTimeslot = clerk[3] + "," + service_time
-            time.sleep(0.1)
+
             engine.execute(
                 "UPDATE Clerks SET availableTimeslot = \'{clerk_availableTimeslot}\'\
                 WHERE clerkID = {clerkID}".format(clerkID=clerkID, clerk_availableTimeslot=clerk_availableTimeslot))
-            time.sleep(0.1)
+
             engine.execute(
                 "DELETE FROM Appoint \
                  WHERE clerkID = {clerkID} AND ownerID = {Uid}".format(clerkID=clerkID, Uid = Uid))
@@ -304,13 +314,34 @@ def create_app(test_config=None):
                 ).fetchone()
 
                 if user is None:
+
+                    user_id = engine.execute(
+                    'SELECT COUNT(*)\
+                    FROM Users'
+                    ).fetchone()
+
+                    user_id = user_id[0] + 1
                     engine.execute(
-                        "INSERT INTO Users (email, password) VALUES (%s, %s)",
-                        (useremail, password),
+                        "INSERT INTO Users (ownerID, email, password) VALUES (%s, %s, %s)",
+                        (user_id, useremail, password),
+                    )
+
+                    pet_id = engine.execute(
+                    'SELECT COUNT(*)\
+                    FROM Pets'
+                    ).fetchone()
+
+                    pet_id = pet_id[0] + 1
+
+                    engine.execute(
+                        "INSERT INTO Pets (petID, ownerID) VALUES (%s, %s)", (pet_id, user_id),
                     )
                 else:
                     error = 'User {useremail} is already registered.'.format(useremail=useremail)
                     flash(error)
+
+                nonlocal Uid
+                Uid = user_id
 
                 nonlocal Uemail
                 Uemail = useremail
