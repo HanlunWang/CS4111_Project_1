@@ -233,6 +233,16 @@ def create_app(test_config=None):
 
     @app.route('/checkout', methods=['GET','POST'])
     def checkout():
+        sum = 0
+        cursor = engine.execute("SELECT Orders.amount, Products.price FROM Orders, Products \
+                                             WHERE ownerID = %s  AND Orders.productID = Products.productID", Uid,)
+        for result in cursor:
+            sum += result[0]*result[1]
+        cursor.close()
+
+        engine.execute(
+            "UPDATE Users SET accountBalance = accountBalance - {sum}".format(sum=sum))
+
         engine.execute("DELETE FROM Orders \
                         WHERE ownerID = {Uid}".format(Uid = Uid))
         return redirect(url_for("cart"))
