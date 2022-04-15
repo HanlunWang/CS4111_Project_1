@@ -80,14 +80,6 @@ def create_app(test_config=None):
 
     @app.route('/navigation/user_info')
     def user_info():
-        # username = request.form['name']
-        # telephone = request.form['telephone']
-        # memberStatus = request.form['memberStatus']
-        # accountBalance = request.form['accountBalance']
-
-        # engine.execute("INSERT INTO Users (name, telephone, memberStatusm accountBalance) VALUES (%s, %s, %b, %.2f) WHERE email = %s",
-        #             (username, telephone, memberStatus, accountBalance, Uemail),)
-
         content = []
         cursor = g.conn.execute("SELECT name, telephone, memberStatus, accountBalance FROM Users WHERE email = %s", (Uemail),)
         for result in cursor:
@@ -104,6 +96,12 @@ def create_app(test_config=None):
             petType = request.form['type']
             petGender = request.form['gender']
             petAge = request.form['age']
+            petDOB = request.form['DOB']
+            petWeight = request.form['weight']
+            petHealthRecord = request.form['healthrecord']
+            petCharacter = request.form['character']
+            petPreference = request.form['preference']
+            petPrice = request.form['petPrice']
 
             if petName:
                 engine.execute("UPDATE Pets SET name = %s WHERE ownerID = %s", (petName, Uid),)
