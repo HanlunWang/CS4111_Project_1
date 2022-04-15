@@ -354,4 +354,4 @@ def create_app(test_config=None):
 if __name__ == "__main__":
     app = create_app()
     app.secret_key = "super secret key"
-    app.run()
+    app.run(port=8111)
