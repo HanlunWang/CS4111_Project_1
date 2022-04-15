@@ -132,6 +132,7 @@ def create_app(test_config=None):
     def shop():
         content = []
         cursor = g.conn.execute("SELECT * FROM Products ORDER BY productID")
+        time.sleep(0.1)
         for result in cursor:
             content.append([result[0], result[1], result[2], result[3], result[4], result[5], result[6]])
         cursor.close()
@@ -167,6 +168,7 @@ def create_app(test_config=None):
                 "UPDATE Products \
                 SET amount = amount - {quantity}\
                 WHERE productID = {product_id}".format(product_id = product_id, quantity = quantity))
+        time.sleep(0.1)
         engine.execute(
                 "UPDATE Products \
                 SET salesVolume = salesVolume + {quantity}\
@@ -186,6 +188,7 @@ def create_app(test_config=None):
             quantity = int(request.form[product_id])
             order = g.conn.execute(
                 "SELECT * FROM Orders WHERE ownerID = {Uid} AND productID = {product_id}".format(Uid=Uid, product_id=product_id)).fetchone()
+            time.sleep(0.1)
             product = g.conn.execute(
                 "SELECT * FROM Products WHERE productID = {product_id}".format(product_id=product_id)).fetchone()
             order_num = order[2]
@@ -246,6 +249,7 @@ def create_app(test_config=None):
         my_appoints = engine.execute(
                     'SELECT * FROM Appoint WHERE ownerID = %s', Uid
                 ).fetchall()
+        time.sleep(0.1)
         my_appoints_clerkids = []
         for appoint in my_appoints:
             my_appoints_clerkids.append(appoint[1])
