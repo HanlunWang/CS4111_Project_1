@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="POST" id="remove_from_cart"></form>
+<form method="POST" id="remove_from_cart">
 <table>
     <tbody>
         <tr>
@@ -19,12 +19,12 @@
         <td>{{n[2]}}</td>
         <td><input type="number" name={{n[1]}} form="remove_from_cart"/></td>
         <td><button type="submit" name="product_id" form="remove_from_cart" value={{n[1]}}>remove from cart</button></td>
-        
     </tr>
-
     {% endfor %}
     </tbody>
 </table>
+<button type="submit" name="checkout" form="remove_from_cart" value="checkout">check out</button>
+</form>
 <p><center><a href="/navigation/shop">return to shop</a></center></p>
 <p><center><a href="/navigation">return to navigation page</a></center></p>
 

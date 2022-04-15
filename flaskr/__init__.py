@@ -229,6 +229,11 @@ def create_app(test_config=None):
                     flash(error)
                 return redirect(url_for("cart"))
 
+        if request.method == 'POST':
+            print("AAAA")
+            checkout = request.form['checkout']
+            if checkout:
+                print("aaaa")
         return render_template("cart.html", **context)
 
     @app.route('/navigation/pet_service', methods=['GET','POST'])
