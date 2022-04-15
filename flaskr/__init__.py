@@ -101,7 +101,7 @@ def create_app(test_config=None):
             petHealthRecord = request.form['healthrecord']
             petCharacter = request.form['character']
             petPreference = request.form['preference']
-            petPrice = request.form['petPrice']
+            petPrice = request.form['price']
 
             if petName:
                 engine.execute("UPDATE Pets SET name = %s WHERE ownerID = %s", (petName, Uid),)
@@ -111,6 +111,18 @@ def create_app(test_config=None):
                 engine.execute("UPDATE Pets SET gender = %s WHERE ownerID = %s", (petGender, Uid),)
             if petAge:
                 engine.execute("UPDATE Pets SET age = %s WHERE ownerID = %s", (petAge, Uid),)
+            if petDOB:
+                engine.execute("UPDATE Pets SET dateOfBirth = %s WHERE ownerID = %s", (petDOB, Uid),)
+            if petWeight:
+                engine.execute("UPDATE Pets SET weight = %s WHERE ownerID = %s", (petWeight, Uid),)
+            if petHealthRecord:
+                engine.execute("UPDATE Pets SET healthRecord = %s WHERE ownerID = %s", (petHealthRecord, Uid),)
+            if petCharacter:
+                engine.execute("UPDATE Pets SET character = %s WHERE ownerID = %s", (petCharacter, Uid),)
+            if petPreference:
+                engine.execute("UPDATE Pets SET preference = %s WHERE ownerID = %s", (petPreference, Uid),)
+            if petPrice:
+                engine.execute("UPDATE Pets SET price = %s WHERE ownerID = %s", (petPrice, Uid),)
 
             return redirect(url_for("pet_info"))
         return render_template("update_pet.html")
