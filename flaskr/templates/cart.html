@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-<form method="POST" id="remove_from_cart">
+<form method="POST" id="remove_from_cart"></form>
 <table>
     <tbody>
         <tr>
@@ -23,8 +23,8 @@
     {% endfor %}
     </tbody>
 </table>
-<button type="submit" name="checkout" form="remove_from_cart" value="checkout">check out</button>
-</form>
+<button type="button" name="check_out" form="remove_from_cart" onclick="location.href='/checkout'">check out</button>
+
 <p><center><a href="/navigation/shop">return to shop</a></center></p>
 <p><center><a href="/navigation">return to navigation page</a></center></p>
 
